@@ -1,0 +1,7 @@
+# Gitignore template for Truffle project
+contracts/.placeholder
+test/.placeholder
+build
+node_modules
+.env
+.DS_store
