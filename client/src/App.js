@@ -8,7 +8,7 @@ import "./App.css";
 
 class App extends Component {
   // We have to understand if our app is loaded or not
-  state = { loaded:false, kycAddress:"0x123..", tokenSaleAddress: null, userTokens:0 };
+  state = { loaded:false, kycAddress:"0x123..", tokenSaleAddress: null, userTokens:0 , totalTokens:0};
 
   componentDidMount = async () => {
     try {
@@ -40,7 +40,7 @@ class App extends Component {
       this.listenToTokenTransfer();
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({loaded:true, tokenSaleAddress:MyTokenSale.networks[this.networkId].address}, this.updateUserTokens);
+      this.setState({loaded:true, tokenSaleAddress:MyTokenSale.networks[this.networkId].address}, this.updateUserTokens, this.updateTotalTokens);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -53,6 +53,11 @@ class App extends Component {
   updateUserTokens = async() => {
     let userTokens = await this.tokenInstance.methods.balanceOf(this.accounts[0]).call();
     this.setState({userTokens: userTokens});
+  }
+
+  updateTotalTokens = async() => {
+    let totalTokens = await this.tokenInstance.methods.totalSupply().call();
+    this.setState({totalTokens: totalTokens});
   }
 
   // To update the amount once the Token are exchanged
@@ -103,6 +108,7 @@ class App extends Component {
         <h2>Buy Tokens</h2>
         <p>If you want to buy Tokens, send Wei to this address: {this.state.tokenSaleAddress}</p>
         <p>You currently have: {this.state.userTokens} CAPPU Tokens</p>
+        <p>Total amount of CAPPU Tokens: {this.state.totalTokens}</p>
         <button type="button" onClick={this.handleBuyTokens}>Buy more Tokens</button>
       </div>
     );

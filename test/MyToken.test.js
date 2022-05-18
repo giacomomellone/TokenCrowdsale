@@ -18,43 +18,19 @@ contract("Token Test", async (accounts) =>
     // Hook function, it hooks before each test suite
     beforeEach(async () => {
         // It is directly deployed in our test case
-        this.myToken = await Token.new(process.env.INITIAL_TOKENS);
+        this.myToken = await Token.new();
+        // Mint some tokens
+        await this.myToken.mint(deployerAccount, process.env.INITIAL_TOKENS);
     });
 
     // This function takes as second param a callback function
-    it("all tokens should be in my account", async () => {
+    it("all tokens minted should be in my account", async () => {
         // Here we define our test case
         // In that way we take our token instance once deployed
         let instance = this.myToken;
         let totalSupply = await instance.totalSupply();
 
-        // console.log("weiRaised: ", await instanceSale.weiRaised());
-        // console.log("wallet: ", await instanceSale.wallet());
-        // console.log("token: ", await instanceSale.token());
-        // console.log("totalSupply: ", totalSupply);
-
-        // In the old version, would be
-        // accounts[0] is the account who deployed the contract
-        /* let balance = await instance.balanceOf(accounts[0]);
-        assert.equal(balance.valueOf(), initialSupply.valueOf(), "The balance was not the same"); */
-
-        // Better to use expect, from chai.expect
-        // we use await since it is a promise to be resolved
-        /* expect(await instance.balanceOf(accounts[0])).to.be.a.bignumber.equal(totalSupply); */
-
-        // With chai-as-promised, we can do in the following way
-        // https://www.chaijs.com/plugins/chai-as-promised/
-        // The "eventually" takes care of waiting for this promised to resolve
         return await expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(totalSupply)
-    });
-
-    it("is not possible to send more tokens than available in total", async () => {
-        
-        let instance = this.myToken;
-        let balanceOfDeployer = await instance.balanceOf(deployerAccount);
-
-        await expect(instance.transfer(recipient, new BN(balanceOfDeployer+1))).to.eventually.be.rejected;
-        return await expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(new BN(balanceOfDeployer));
     });
 
     it("is possible to send tokens between accounts", async () => {
@@ -68,5 +44,15 @@ contract("Token Test", async (accounts) =>
         await expect(instance.transfer(recipient, sendTokens)).to.eventually.be.fulfilled;
         await expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(totalSupply.sub(new BN(sendTokens)));
         return await expect(instance.balanceOf(recipient)).to.eventually.be.a.bignumber.equal(new BN(sendTokens));
+    });
+
+    it("is not possible to send more tokens than available in total", async () => {
+        let instance = this.myToken;
+        let balanceOfDeployer = await instance.balanceOf(deployerAccount);
+        let balanceOfRecipient = await instance.balanceOf(recipient);
+
+        // expect(instance.transfer(recipient, new BN(balanceOfDeployer+1))).to.eventually.be.rejected;
+
+        return expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(balanceOfDeployer);
     });
 });

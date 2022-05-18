@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Crowdsale.sol";
+import "./MintedCrowdsale.sol";
 import "./KycContract.sol";
 
 // The idea here is that the TokenSale Smart Contract is holding the token, and when
 // someone sends money to him, the Tokens are sent back to the person who's sending money
-contract MyTokenSale is Crowdsale {
+contract MyTokenSale is MintedCrowdsale {
 
     KycContract kyc;
 
@@ -16,6 +16,7 @@ contract MyTokenSale is Crowdsale {
         IERC20 token,
         KycContract _kyc
     )
+        MintedCrowdsale()
         Crowdsale(rate, wallet, token)
     {
         kyc = _kyc;

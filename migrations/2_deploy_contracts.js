@@ -9,12 +9,11 @@ require("dotenv").config({path: "../.env"});
 module.exports = async function(deployer) {
     let addr = await web3.eth.getAccounts();
     // You have to tell what you want to deploy
-    await deployer.deploy(MyToken, process.env.INITIAL_TOKENS);
+    await deployer.deploy(MyToken);
     await deployer.deploy(KycContract);
-    // 1 wei is 1 token
+    // _rate: 1 wei is 1 token
     await deployer.deploy(MyTokenSale, 1, addr[0], MyToken.address, KycContract.address);
 
     let instance = await MyToken.deployed();
-    // Transfer the whole amount such as the SC holds all the tokens
-    await instance.transfer(MyTokenSale.address, process.env.INITIAL_TOKENS);
+    await instance.addMinter(MyTokenSale.address);
 }
